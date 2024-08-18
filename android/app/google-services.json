@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "405550408727",
+    "project_id": "love-chat-aec9b",
+    "storage_bucket": "love-chat-aec9b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:405550408727:android:f512703efd17e5fa862852",
+        "android_client_info": {
+          "package_name": "com.love_chat"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAxxlW2ZbRIex8D2o-U-jzqelvS-Do32yw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
