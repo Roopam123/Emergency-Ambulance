@@ -4,17 +4,19 @@ import {TouchableOpacity} from 'react-native-gesture-handler';
 import HomeIcon from 'react-native-vector-icons/FontAwesome5';
 import LiveIcons from 'react-native-vector-icons/Fontisto';
 import AccountIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import GoLiveIcon from 'react-native-vector-icons/Fontisto';
 import AccountScreen from './AccountScreen';
 import MapViewPage from './MapViewPage';
 import AllAmbulance from './AllAmbulance';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import GoLive from './Ambulance/GoLive';
 
 const HomeTab = () => {
   const [mapViewTab, setMapViewTab] = useState('MapView');
   const [allAmbulance, seAllAmbulance] = useState('');
   const [account, setAccount] = useState('');
   const [userType, setUserType] = useState('');
-  const [loginUser, setLoginUser] = useState('');
+  const [goLive, setGoLive] = useState('');
   useEffect(() => {
     getUserType();
   }, []);
@@ -32,6 +34,7 @@ const HomeTab = () => {
 
   return (
     <View style={styles.homeContent}>
+      {/* Conditional Component Render */}
       {mapViewTab == 'MapView' && (
         <View style={styles.titleGroup}>
           <Text style={styles.title}>Search Ambulance</Text>
@@ -42,18 +45,23 @@ const HomeTab = () => {
       {allAmbulance == 'allAmbulance' && userType == 'Patient' && (
         <AllAmbulance />
       )}
+      {goLive == 'GoLive' && userType == 'Ambulance' && <GoLive />}
       {account == 'Account' && <AccountScreen />}
+      {/* Buttom */}
       <View style={styles.buttomTab}>
+        {/* MapView */}
         <TouchableOpacity
           style={styles.tab}
           onPress={() => {
             setMapViewTab('MapView');
             setAccount('');
             seAllAmbulance('');
+            setGoLive('');
           }}>
           <HomeIcon name="home" size={18} />
           <Text style={styles.TabText}>Home</Text>
         </TouchableOpacity>
+        {/* All Ambulance */}
         {userType == 'Patient' && (
           <TouchableOpacity
             style={styles.tab}
@@ -61,17 +69,33 @@ const HomeTab = () => {
               setMapViewTab('');
               setAccount('');
               seAllAmbulance('allAmbulance');
-              console.log('All Clicked');
+              setGoLive('');
             }}>
             <LiveIcons name="livestream" size={16} />
             <Text style={styles.TabText}>All Ambulance</Text>
           </TouchableOpacity>
         )}
+        {/* GoLive Tab */}
+        {userType == 'Ambulance' && (
+          <TouchableOpacity
+            style={styles.tab}
+            onPress={() => {
+              setMapViewTab('');
+              seAllAmbulance('');
+              setAccount('');
+              setGoLive('GoLive');
+            }}>
+            <GoLiveIcon name="livestream" size={20} />
+            <Text style={styles.TabText}>Go Live</Text>
+          </TouchableOpacity>
+        )}
+        {/* Account Tab */}
         <TouchableOpacity
           style={styles.tab}
           onPress={() => {
             setMapViewTab('');
             seAllAmbulance('');
+            setGoLive('');
             setAccount('Account');
           }}>
           <AccountIcons name="account" size={20} />
