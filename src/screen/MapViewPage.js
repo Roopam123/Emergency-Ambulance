@@ -8,31 +8,35 @@ import {
   Text,
   Image,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useReducer, useState} from 'react';
 import MapView, {Polyline} from 'react-native-maps';
 import {Marker} from 'react-native-maps';
 import Geolocation from '@react-native-community/geolocation';
 import mapStyle from '../mapStyle.json';
 import {getDistance} from 'geolib';
-import MapViewDirections from 'react-native-maps-directions';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const MapViewPage = () => {
   const [currentLocation, setCurrentLocation] = useState(null);
   const [hasPermission, setHasPermission] = useState(false);
-
-  // part two
-  const [source, setSource] = useState('');
-  const [isSource, setIsSource] = useState(false);
-  const [destination, setDestination] = useState('');
-  const [isDestination, setIsDestination] = useState('');
-
-  // Distance
-  const [distance, setDistance] = useState('');
+  const [destination, setDestination] = useState('destination');
   const [userType, setUserType] = useState('');
+  const [distance, setDistance] = useState('');
+  console.log('distance', distance);
 
   useEffect(() => {
     requestLocationPersmission();
+  }, []);
+  useEffect(() => {
+    showCordinates();
+  }, []);
+  useEffect(() => {
+    setDestination({
+      latitude: 23.25763,
+      longitude: 77.43306,
+      latitudeDelta: 0.01,
+      longitudeDelta: 0.01,
+    });
   }, []);
 
   useEffect(() => {
@@ -40,9 +44,25 @@ const MapViewPage = () => {
   }, []);
   const getUserType = async () => {
     const type = await AsyncStorage.getItem('user_type');
-    console.log(type, 'mapview');
-
     setUserType(type);
+  };
+
+  const showCordinates = () => {
+    if (currentLocation && destination) {
+      const distanceInKm =
+        getDistance(
+          {
+            latitude: currentLocation.latitude,
+            longitude: currentLocation.longitude,
+          },
+          {
+            latitude: destination.latitude,
+            longitude: destination.longitude,
+          },
+        ) / 1000;
+      setDistance(distanceInKm.toFixed(2));
+      console.log(distance);
+    }
   };
 
   const getUserCurrentLocation = () => {
@@ -50,7 +70,6 @@ const MapViewPage = () => {
       setCurrentLocation(currentPostion?.coords),
     );
   };
-
   const requestLocationPersmission = async () => {
     try {
       const granted = await PermissionsAndroid.request(
@@ -71,38 +90,6 @@ const MapViewPage = () => {
     }
   };
 
-  // It will work when we are Trying to the
-  const handelMapPress = e => {
-    const cordinates = e.nativeEvent.coordinate;
-    console.log('map on tab cordinate', cordinates);
-    if (isSource) {
-      setSource(cordinates);
-      setIsSource(false);
-    } else if (isDestination) {
-      setDestination(cordinates);
-      setIsDestination(cordinates);
-    }
-  };
-
-  // for the finding the distance beetween two cordinates
-  const showCordinates = () => {
-    if (source && destination) {
-      const distanceInKm =
-        getDistance(
-          {
-            latitude: source.latitude,
-            longitude: source.longitude,
-          },
-          {
-            latitude: destination.latitude,
-            longitude: destination.longitude,
-          },
-        ) / 1000;
-      setDistance(distanceInKm.toFixed(2));
-      console.log(distance);
-    }
-  };
-
   return (
     <View style={styles.mapView}>
       {hasPermission && (
@@ -114,7 +101,6 @@ const MapViewPage = () => {
             latitudeDelta: 0.01,
             longitudeDelta: 0.01,
           }}
-          onPress={handelMapPress}
           style={styles.map}>
           <Marker
             coordinate={{
@@ -123,8 +109,6 @@ const MapViewPage = () => {
               latitudeDelta: 0.01,
               longitudeDelta: 0.01,
             }}
-            // title={'Test'}
-            // description={'Hello I am Testing'}
             onPress={data =>
               console.log('marker press-->', data.nativeEvent.coordinate)
             }>
@@ -139,66 +123,36 @@ const MapViewPage = () => {
               />
             )}
           </Marker>
-          {source && (
-            <Marker coordinate={source} title={'source'}>
-              <Image
-                source={require('../Img/ambulance.png')}
-                style={{
-                  width: 40,
-                  height: 40,
-                  transform: [{scale: 0.5}],
-                }}
-              />
-            </Marker>
-          )}
           {destination && (
             <Marker
               coordinate={destination}
               title={'destination'}
               pinColor={'blue'}
-              draggable={true}
-            />
+              draggable={true}>
+              <Image
+                source={require('../Img/user.png')}
+                style={{
+                  width: 50,
+                  height: 50,
+                  transform: [{scale: 0.5}],
+                }}
+              />
+            </Marker>
           )}
-          {source && destination && (
+          {currentLocation && destination && (
             <Polyline
-              coordinates={[source, destination]}
+              coordinates={[currentLocation, destination]}
               strokeWidth={2}
               strokeColor={'black'}
             />
           )}
-          {/* {source && destination && (
-            <MapViewDirections
-              origin={source}
-              destination={destination}
-              apikey={'AIzaSyAEhY4qtMB9SiXG4JCyX9KUKd4Odr7900g'}
-              strokeWidth={3}
-              strokeColor={'blue'}
-            />
-          )} */}
         </MapView>
       )}
-      <View style={styles.btns}>
-        <View style={styles.topBtn}>
-          <Button title="Start" onPress={() => setIsSource(true)} />
-          <Button title="End" onPress={() => setIsDestination(true)} />
+      {destination && (
+        <View style={styles.distance}>
+          <Text style={styles.distancekm}>Destination:-{distance}km</Text>
         </View>
-        <View style={styles.topBtn}>
-          <View style={{display: 'flex', flexDirection: 'row'}}>
-            <Button title="Total Distance" onPress={showCordinates} />
-            {distance && (
-              <Text style={styles.distanceText}>= {distance}km</Text>
-            )}
-          </View>
-          <Button
-            title="Reset"
-            onPress={() => {
-              setSource('');
-              setDestination('');
-              setDistance('');
-            }}
-          />
-        </View>
-      </View>
+      )}
     </View>
   );
 };
@@ -231,6 +185,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     color: 'white',
     borderRadius: 5,
+  },
+  distance: {
+    position: 'absolute',
+    bottom: 80,
+    left: 10,
+    backgroundColor: 'white',
+    borderRadius: 10,
+  },
+  distancekm: {
+    fontSize: 18,
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    color: 'black',
+    fontWeight: '600',
   },
 });
 
