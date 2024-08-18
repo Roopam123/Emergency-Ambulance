@@ -6,6 +6,7 @@ import {
   Alert,
   Button,
   Text,
+  Image,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import MapView, {Polyline} from 'react-native-maps';
@@ -14,6 +15,7 @@ import Geolocation from '@react-native-community/geolocation';
 import mapStyle from '../mapStyle.json';
 import {getDistance} from 'geolib';
 import MapViewDirections from 'react-native-maps-directions';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const MapViewPage = () => {
   const [currentLocation, setCurrentLocation] = useState(null);
@@ -27,10 +29,21 @@ const MapViewPage = () => {
 
   // Distance
   const [distance, setDistance] = useState('');
+  const [userType, setUserType] = useState('');
 
   useEffect(() => {
     requestLocationPersmission();
   }, []);
+
+  useEffect(() => {
+    getUserType();
+  }, []);
+  const getUserType = async () => {
+    const type = await AsyncStorage.getItem('user_type');
+    console.log(type, 'mapview');
+
+    setUserType(type);
+  };
 
   const getUserCurrentLocation = () => {
     Geolocation.getCurrentPosition(currentPostion =>
@@ -114,15 +127,29 @@ const MapViewPage = () => {
             // description={'Hello I am Testing'}
             onPress={data =>
               console.log('marker press-->', data.nativeEvent.coordinate)
-            }
-          />
+            }>
+            {userType == 'Ambulance' && (
+              <Image
+                source={require('../Img/emergency-ambulance.png')}
+                style={{
+                  width: 50,
+                  height: 50,
+                  transform: [{scale: 0.5}],
+                }}
+              />
+            )}
+          </Marker>
           {source && (
-            <Marker
-              coordinate={source}
-              title={'source'}
-              pinColor={'green'}
-              draggable={true}
-            />
+            <Marker coordinate={source} title={'source'}>
+              <Image
+                source={require('../Img/ambulance.png')}
+                style={{
+                  width: 40,
+                  height: 40,
+                  transform: [{scale: 0.5}],
+                }}
+              />
+            </Marker>
           )}
           {destination && (
             <Marker
