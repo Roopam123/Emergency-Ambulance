@@ -22,7 +22,6 @@ const MapViewPage = () => {
   const [destination, setDestination] = useState('destination');
   const [userType, setUserType] = useState('');
   const [distance, setDistance] = useState('');
-  console.log('distance', distance);
 
   useEffect(() => {
     requestLocationPersmission();
@@ -46,7 +45,6 @@ const MapViewPage = () => {
     const type = await AsyncStorage.getItem('user_type');
     setUserType(type);
   };
-
   const showCordinates = () => {
     if (currentLocation && destination) {
       const distanceInKm =
