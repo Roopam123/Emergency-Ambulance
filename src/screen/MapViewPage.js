@@ -15,6 +15,7 @@ import Geolocation from '@react-native-community/geolocation';
 import mapStyle from '../mapStyle.json';
 import {getDistance} from 'geolib';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import MapViewDirections from 'react-native-maps-directions';
 
 const MapViewPage = () => {
   const [currentLocation, setCurrentLocation] = useState(null);
@@ -87,7 +88,6 @@ const MapViewPage = () => {
       console.log('Error on the granted permission location-->', error);
     }
   };
-
   return (
     <View style={styles.mapView}>
       {hasPermission && (
@@ -127,23 +127,43 @@ const MapViewPage = () => {
               title={'destination'}
               pinColor={'blue'}
               draggable={true}>
-              <Image
-                source={require('../Img/user.png')}
-                style={{
-                  width: 50,
-                  height: 50,
-                  transform: [{scale: 0.5}],
-                }}
-              />
+              {userType == 'Patient'}
+              {userType == 'Patient' && (
+                <Image
+                  source={require('../Img/emergency-ambulance.png')}
+                  style={{
+                    width: 50,
+                    height: 50,
+                    transform: [{scale: 0.5}],
+                  }}
+                />
+              )}
+              {userType == 'Ambulance' && (
+                <Image
+                  source={require('../Img/user.png')}
+                  style={{
+                    width: 50,
+                    height: 50,
+                    transform: [{scale: 0.5}],
+                  }}
+                />
+              )}
             </Marker>
           )}
-          {currentLocation && destination && (
+          {/* {currentLocation && destination && (
             <Polyline
               coordinates={[currentLocation, destination]}
               strokeWidth={2}
               strokeColor={'black'}
             />
-          )}
+          )} */}
+          <MapViewDirections
+            origin={currentLocation}
+            destination={destination}
+            apikey={'AIzaSyBn0T0aZ8pk114BrLoOILbjvVOofsxzIbQ'}
+            strokeWidth={3}
+            strokeColor="black"
+          />
         </MapView>
       )}
       {destination && (
